@@ -3,14 +3,17 @@
 
 import { ChangeEvent } from 'react';
 
+interface FormData {
+  triggerProduct: string;
+  upsellProduct:   string;
+  message:         string;
+  discount:        string;
+}
+
+
 type Props = {
-  formData: {
-    triggerProduct: string;
-    upsellProduct: string;
-    message: string;
-    discount: string;
-  };
-  setFormData: (data: any) => void;
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 };
 
 export default function UpsellForm({ formData, setFormData }: Props) {
