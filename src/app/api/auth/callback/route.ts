@@ -1,40 +1,35 @@
 // src/app/api/auth/callback/route.ts
-import { NextResponse } from "next/server";
-import crypto from "crypto";
-import { URL } from "url";
+import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 function generateHmac(params: URLSearchParams, secret: string) {
-  const sorted = [...params.entries()]
-    .filter(([key]) => key !== "hmac" && key !== "signature")
+  const sortedParams = [...params.entries()]
+    .filter(([key]) => key !== 'hmac' && key !== 'signature')
     .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([k, v]) => `${k}=${v}`)
-    .join("&");
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&');
 
-  return crypto.createHmac("sha256", secret).update(sorted).digest("hex");
+  return crypto.createHmac('sha256', secret).update(sortedParams).digest('hex');
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const shop = searchParams.get("shop");
-  const hmac = searchParams.get("hmac");
-  const code = searchParams.get("code");
+  const shop = searchParams.get('shop');
+  const hmac = searchParams.get('hmac');
+  const code = searchParams.get('code');
 
   if (!shop || !hmac || !code) {
-    return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+    return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
-  // Validate HMAC
   const generatedHmac = generateHmac(searchParams, process.env.SHOPIFY_API_SECRET!);
   if (generatedHmac !== hmac) {
-    return NextResponse.json({ error: "Invalid HMAC" }, { status: 403 });
+    return NextResponse.json({ error: 'HMAC validation failed' }, { status: 403 });
   }
 
-  // Exchange code for access token
-  const accessTokenResponse = await fetch(`https://${shop}/admin/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const tokenResponse = await fetch(`https://${shop}/admin/oauth/access_token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       client_id: process.env.SHOPIFY_API_KEY,
       client_secret: process.env.SHOPIFY_API_SECRET,
@@ -42,17 +37,15 @@ export async function GET(request: Request) {
     }),
   });
 
-  if (!accessTokenResponse.ok) {
-    const err = await accessTokenResponse.text();
-    return NextResponse.json({ error: "Failed to get access token", details: err }, { status: 500 });
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+    return NextResponse.json({ error: 'Failed to obtain access token', details: errorText }, { status: 500 });
   }
 
-  const tokenData = await accessTokenResponse.json();
+  const tokenData = await tokenResponse.json();
   const accessToken = tokenData.access_token;
 
-  // Store token securely (in a DB or memory - this example doesn't persist)
-  console.log("✅ Store Access Token:", shop, accessToken);
+  // TODO: Store the access token securely for future API calls
 
-  // Redirect to dashboard or success page
   return NextResponse.redirect(`${process.env.SHOPIFY_APP_URL}/dashboard?shop=${shop}`);
 }
