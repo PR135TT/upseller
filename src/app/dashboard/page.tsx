@@ -1,27 +1,26 @@
-// src/app/dashboard/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import UpsellForm from '../components/UpsellForm';
 import UpsellPreview from '../components/UpsellPreview';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams();
-  const shop = searchParams.get('shop');
   const router = useRouter();
+  const shop = searchParams.get('shop');
 
   // form state
   const [formData, setFormData] = useState({
     triggerProduct: '',
     upsellProduct: '',
     message: '',
-    discount: ''
+    discount: '',
   });
 
   // If no shop in URL, show the install button
   if (!shop) {
-    // You could also add an <input> here to let them enter their .myshopify.com domain
     const defaultShop = 'your-dev-store.myshopify.com';
     return (
       <div className="flex items-center justify-center min-h-screen bg-green-100">
@@ -35,11 +34,19 @@ export default function DashboardPage() {
     );
   }
 
-  // Once shop is present, show the upsell form + preview
+  // Once shop is present, show the upsell form and preview
   return (
     <div className="p-6 grid md:grid-cols-2 gap-6 min-h-screen bg-black-100">
       <UpsellForm formData={formData} setFormData={setFormData} />
       <UpsellPreview formData={formData} />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>loadConfig...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
