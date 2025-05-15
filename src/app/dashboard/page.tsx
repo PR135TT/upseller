@@ -27,7 +27,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <button
           onClick={() => router.push(`/api/auth?shop=${defaultShop}`)}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+          className="bg-blue-600 text-black px-6 py-3 rounded-lg hover:bg-blue-700"
         >
           Install on Shopify
         </button>
