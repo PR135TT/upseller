@@ -24,10 +24,10 @@ export default function DashboardPage() {
     // You could also add an <input> here to let them enter their .myshopify.com domain
     const defaultShop = 'your-dev-store.myshopify.com';
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black-100">
+      <div className="flex items-center justify-center min-h-screen bg-green-100">
         <button
           onClick={() => router.push(`/api/auth?shop=${defaultShop}`)}
-          className="bg-black-600 text-black px-6 py-3 rounded-lg hover:bg-blue-700"
+          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
         >
           Install on Shopify
         </button>

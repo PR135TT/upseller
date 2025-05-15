@@ -11,7 +11,7 @@ type Props = {
 
 export default function UpsellPreview({ formData }: Props) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
+    <div className="bg-black p-6 rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4">Preview</h2>
       <div className="border p-4 bg-gray-50">
         <p><strong>Trigger:</strong> {formData.triggerProduct || '—'}</p>
