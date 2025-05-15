@@ -37,7 +37,7 @@ export default function DashboardPage() {
 
   // Once shop is present, show the upsell form + preview
   return (
-    <div className="p-6 grid md:grid-cols-2 gap-6 min-h-screen bg-gray-100">
+    <div className="p-6 grid md:grid-cols-2 gap-6 min-h-screen bg-black-100">
       <UpsellForm formData={formData} setFormData={setFormData} />
       <UpsellPreview formData={formData} />
     </div>
