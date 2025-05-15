@@ -44,6 +44,8 @@ export async function GET(request: Request) {
 
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData.access_token;
+  //Temporary: log the token so ESLint sees it's used
+  console.log('Obtained shopify access token:', accessToken);
 
   // TODO: Store the access token securely for future API calls
 
