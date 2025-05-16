@@ -60,6 +60,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Database upsert failed', details: dbError.message }, { status: 500 });
   }
 
-  // 4) Redirect merchant back to your dashboard
+  // 4) Register the upsell snippet with Shopify
+  try {
+    await fetch(`${process.env.SHOPIFY_APP_URL}/api/shopify/register-script`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shop }),
+    });
+  } catch (err) {
+    console.error('🚨 Script tag registration failed:', err);
+    // proceed without blocking the merchant
+  }
+
+  // 5) Redirect merchant back to your dashboard
   return NextResponse.redirect(`${process.env.SHOPIFY_APP_URL}/dashboard?shop=${shop}`);
 }
