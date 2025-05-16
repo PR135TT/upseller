@@ -1,10 +1,10 @@
 // src/app/api/auth/callback/route.ts
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-// ← Import your shared Supabase client
 import { createClient } from '@supabase/supabase-js';
 
-export const supabase = createClient(
+// ① Inline instantiation of Supabase client
+const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
@@ -29,45 +29,37 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
-  // 1) Validate HMAC
+  // 1) Validate the HMAC signature
   const generatedHmac = generateHmac(searchParams, process.env.SHOPIFY_API_SECRET!);
   if (generatedHmac !== hmac) {
     return NextResponse.json({ error: 'HMAC validation failed' }, { status: 403 });
   }
 
-  // 2) Exchange the code for an access token
+  // 2) Exchange the authorization code for an access token
   const tokenResponse = await fetch(`https://${shop}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      client_id: process.env.SHOPIFY_API_KEY,
+      client_id:     process.env.SHOPIFY_API_KEY,
       client_secret: process.env.SHOPIFY_API_SECRET,
       code,
     }),
   });
-
   if (!tokenResponse.ok) {
-    const errorText = await tokenResponse.text();
-    return NextResponse.json(
-      { error: 'Failed to obtain access token', details: errorText },
-      { status: 500 }
-    );
+    const details = await tokenResponse.text();
+    return NextResponse.json({ error: 'Token exchange failed', details }, { status: 500 });
   }
 
   const { access_token } = await tokenResponse.json();
 
-  // 3) Persist the access token in Supabase
+  // 3) Persist the access token to Supabase
   const { error: dbError } = await supabase
     .from('shops')
-    .upsert({ shop, access_token }, { onConflict: 'shop' });
-
+    .upsert({ shop, access_token });
   if (dbError) {
-    return NextResponse.json(
-      { error: 'Database upsert failed', details: dbError.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Database upsert failed', details: dbError.message }, { status: 500 });
   }
 
-  // 4) Redirect to the dashboard with the shop parameter
+  // 4) Redirect merchant back to your dashboard
   return NextResponse.redirect(`${process.env.SHOPIFY_APP_URL}/dashboard?shop=${shop}`);
 }
