@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing shop parameter' }, { status: 400 });
   }
 
-  const baseUrl = process.env.SHOPIFY_APP_URL!.replace(/\/+$/, '');
+  //const baseUrl = process.env.SHOPIFY_APP_URL!.replace(/\/+$/, '');
   const redirectUri = `${process.env.SHOPIFY_APP_URL}/api/auth/callback`;
   console.log (' Redirect URI: ', redirectUri);
   const scopes = process.env.SHOPIFY_SCOPES || 'read_products';
