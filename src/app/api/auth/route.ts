@@ -10,11 +10,11 @@ export async function GET(request: Request) {
   }
 
   //const baseUrl = process.env.SHOPIFY_APP_URL!.replace(/\/+$/, '');
-  const redirectUrl = `${process.env.SHOPIFY_APP_URL}/api/auth/callback`;
-  console.log (' Redirect URI: ', redirectUrl);
+  const redirectUri = `${process.env.SHOPIFY_APP_URL}/api/auth/callback`;
+  console.log (' Redirect URI: ', redirectUri);
   const scopes = process.env.SHOPIFY_SCOPES || 'read_products';
 
-  const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${process.env.SHOPIFY_API_KEY}&scope=${scopes}&redirect_url=${encodeURIComponent(redirectUrl)}&state=123456&grant_options[]=per-user`;
+  const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${process.env.SHOPIFY_API_KEY}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=123456&grant_options[]=per-user`;
   console.log(' Install URL: ', installUrl);
 
 
