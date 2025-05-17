@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   console.log (' Redirect URI: ', redirectUri);
   const scopes = process.env.SHOPIFY_SCOPES || 'read_products';
 
-  const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${process.env.SHOPIFY_API_KEY}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=123456&grant_options[]=per-user`;
+  const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${process.env.SHOPIFY_API_KEY}&scope=${scopes}&redirect_uri=https://${process.env.HOST}/api/auth/callback&state=123456&grant_options[]=per-user`;
   console.log(' Install URL: ', installUrl);
 
 
