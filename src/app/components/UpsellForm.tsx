@@ -1,7 +1,7 @@
 // src/components/UpsellForm.tsx
 'use client';
 
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 interface FormData {
   triggerProduct: string;
@@ -10,23 +10,57 @@ interface FormData {
   discount:        string;
 }
 
-
 type Props = {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 };
 
 export default function UpsellForm({ formData, setFormData }: Props) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleSave = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const shop = params.get('shop');
+      if (!shop) throw new Error('Shop parameter missing');
+
+      const payload = {
+        shop,
+        trigger_product_id: formData.triggerProduct,
+        upsell_product_id: formData.upsellProduct,
+        message: formData.message,
+        discount_percent: Number(formData.discount),
+      };
+
+      const res = await fetch('/api/rules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to save rule');
+      alert('Rule saved successfully!');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-black p-6 rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Create Upsell Offer</h2>
-      <form className="space-y-4">
+      <h2 className="text-xl font-bold mb-4 text-white">Create Upsell Offer</h2>
+      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
         <div>
-          <label className="block mb-1">Trigger Product</label>
+          <label className="block mb-1 text-white">Trigger Product</label>
           <input
             name="triggerProduct"
             value={formData.triggerProduct}
@@ -35,7 +69,7 @@ export default function UpsellForm({ formData, setFormData }: Props) {
           />
         </div>
         <div>
-          <label className="block mb-1">Upsell Product</label>
+          <label className="block mb-1 text-white">Upsell Product</label>
           <input
             name="upsellProduct"
             value={formData.upsellProduct}
@@ -44,7 +78,7 @@ export default function UpsellForm({ formData, setFormData }: Props) {
           />
         </div>
         <div>
-          <label className="block mb-1">Message</label>
+          <label className="block mb-1 text-white">Message</label>
           <input
             name="message"
             value={formData.message}
@@ -53,7 +87,7 @@ export default function UpsellForm({ formData, setFormData }: Props) {
           />
         </div>
         <div>
-          <label className="block mb-1">Discount (%)</label>
+          <label className="block mb-1 text-white">Discount (%)</label>
           <input
             name="discount"
             type="number"
@@ -62,6 +96,14 @@ export default function UpsellForm({ formData, setFormData }: Props) {
             className="w-full p-2 border rounded"
           />
         </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : 'Save Upsell Rule'}
+        </button>
+        {error && <p className="mt-2 text-red-500">{error}</p>}
       </form>
     </div>
   );
