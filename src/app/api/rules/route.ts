@@ -18,6 +18,28 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// DELETE handler: remove a rule by ID
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  const shop = searchParams.get('shop');
+  if (!id || !shop) {
+    return NextResponse.json({ success: false, error: 'Missing id or shop' }, { status: 400 });
+  }
+
+  // Delete only if it belongs to this shop
+  const { error } = await supabase
+    .from('upsell_rules')
+    .delete()
+    .match({ id, shop });
+
+  if (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
 // Unified JSON response wrapper types
 interface JsonSuccess<T> { success: true; data: T }
 interface JsonError        { success: false; error: string }
