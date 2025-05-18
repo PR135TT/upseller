@@ -128,7 +128,7 @@ export default function UpsellForm({ formData, setFormData, onSave }: Props) {
         >
           {loading ? 'Saving...' : 'Save Upsell Rule'}
         </button>
-        {error && <p className="mt-2 text-red-500">{error}</p>}
+        {error && <p className="mt-2 text-black-500">{error}</p>}
       </form>
     </div>
   );

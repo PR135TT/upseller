@@ -38,15 +38,18 @@ function DashboardContent() {
     if (!shop) return;
     fetch(`/api/rules?shop=${shop}`)
       .then(res => res.json())
-      .then((res) => {
-        // if using JsonResponse wrapper:
-        if (res.success) {
-          setSavedRules(res.data);
+      .then((json: { success: boolean; data?: RuleType[]; error?: string }) => {
+        if (json.success) {
+          setSavedRules(json.data!);
         } else {
-          console.error('Failed to load rules:', res.error);
+          console.error('Failed to load rules:', json.error);
+          setSavedRules([]);  // clear on failure or keep previous
         }
       })
-      .catch(console.error);
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setSavedRules([]);
+      });
   }, [shop]);
 
   // 2️⃣ Initial load on mount / shop change
@@ -76,7 +79,7 @@ function DashboardContent() {
       <UpsellForm
         formData={formData}
         setFormData={setFormData}
-        onSave={reloadRules}          // ← new prop
+        onSave={reloadRules}
       />
       <UpsellPreview formData={formData} />
 
