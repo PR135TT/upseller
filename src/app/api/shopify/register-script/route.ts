@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-interface ShopRecord { access_token: string; }
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
