@@ -1,7 +1,7 @@
 // src/app/dashboard/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import UpsellForm from '../components/UpsellForm';
@@ -33,19 +33,26 @@ function DashboardContent() {
   // saved rules state
   const [savedRules, setSavedRules] = useState<RuleType[]>([]);
 
-  // Fetch existing rules when shop is available
-  useEffect(() => {
-    if (shop) {
-      fetch(`/api/rules?shop=${shop}`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setSavedRules(data);
-          }
-        })
-        .catch(console.error);
-    }
+  // 1️⃣ Define a reload function
+  const reloadRules = useCallback(() => {
+    if (!shop) return;
+    fetch(`/api/rules?shop=${shop}`)
+      .then(res => res.json())
+      .then((res) => {
+        // if using JsonResponse wrapper:
+        if (res.success) {
+          setSavedRules(res.data);
+        } else {
+          console.error('Failed to load rules:', res.error);
+        }
+      })
+      .catch(console.error);
   }, [shop]);
+
+  // 2️⃣ Initial load on mount / shop change
+  useEffect(() => {
+    reloadRules();
+  }, [reloadRules]);
 
   // If no shop in URL, show the install button
   if (!shop) {
@@ -65,7 +72,12 @@ function DashboardContent() {
   // Once shop is present, show the upsell form, preview, and saved rules
   return (
     <div className="p-6 grid md:grid-cols-2 gap-6 min-h-screen bg-gray-100">
-      <UpsellForm formData={formData} setFormData={setFormData} />
+      {/* 3️⃣ Pass reloadRules into the form */}
+      <UpsellForm
+        formData={formData}
+        setFormData={setFormData}
+        onSave={reloadRules}          // ← new prop
+      />
       <UpsellPreview formData={formData} />
 
       {/* Existing rules list */}

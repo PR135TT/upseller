@@ -18,11 +18,12 @@ interface ApiResponse {
 type Props = {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  onSave?: () => void;                 // ← new prop
 };
 
-export default function UpsellForm({ formData, setFormData }: Props) {
+export default function UpsellForm({ formData, setFormData, onSave }: Props) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,41 +33,42 @@ export default function UpsellForm({ formData, setFormData }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams(window.location.search);
-      const shop = params.get('shop');
+      const shop = new URLSearchParams(window.location.search).get('shop');
       if (!shop) throw new Error('Shop parameter missing');
 
       const payload = {
         shop,
         trigger_product_id: formData.triggerProduct,
-        upsell_product_id: formData.upsellProduct,
-        message: formData.message,
-        discount_percent: Number(formData.discount),
+        upsell_product_id:  formData.upsellProduct,
+        message:            formData.message,
+        discount_percent:   Number(formData.discount),
       };
 
       const res = await fetch('/api/rules', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body:    JSON.stringify(payload),
       });
 
       const text = await res.text();
-      console.log('❗ Raw response text:', text);
-
       let data: ApiResponse;
       try {
-        data = JSON.parse(text) as ApiResponse;
+        data = JSON.parse(text);
       } catch {
-        data = { error: 'Invalid JSON response' };
+        throw new Error('Invalid JSON response');
       }
 
       if (!res.ok || data.error) {
-        const msg = data.error || 'Failed to save rule';
-        throw new Error(msg);
+        throw new Error(data.error || 'Failed to save rule');
       }
 
       alert('Rule saved successfully!');
+
+      // ① clear form
       setFormData({ triggerProduct: '', upsellProduct: '', message: '', discount: '' });
+
+      // ② invoke onSave callback so parent can reload rules
+      onSave?.();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
@@ -78,7 +80,10 @@ export default function UpsellForm({ formData, setFormData }: Props) {
   return (
     <div className="bg-black p-6 rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4 text-white">Create Upsell Offer</h2>
-      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => { e.preventDefault(); handleSave(); }}
+      >
         <div>
           <label className="block mb-1 text-white">Trigger Product</label>
           <input
