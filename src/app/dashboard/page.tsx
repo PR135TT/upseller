@@ -87,7 +87,7 @@ function DashboardContent() {
       <div className="md:col-span-2 bg-white p-4 rounded shadow">
         <h3 className="text-lg font-bold mb-2">Existing Upsell Rules</h3>
         {savedRules.length === 0 ? (
-          <p className="text-sm text-gray-500">No rules yet.</p>
+          <p className="text-sm text-black-500">No rules yet.</p>
         ) : (
           <ul className="list-disc ml-5 space-y-1">
             {savedRules.map(r => (
