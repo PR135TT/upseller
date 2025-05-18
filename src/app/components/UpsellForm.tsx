@@ -46,10 +46,14 @@ export default function UpsellForm({ formData, setFormData }: Props) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to save rule');
+      if (!res.ok) {
+        const msg = typeof data.error === 'string' ? data.error : 'Failed to save rule';
+        throw new Error(msg);
+      }
       alert('Rule saved successfully!');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     } finally {
       setLoading(false);
     }
