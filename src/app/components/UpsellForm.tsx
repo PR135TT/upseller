@@ -10,6 +10,11 @@ interface FormData {
   discount:        string;
 }
 
+interface ApiResponse {
+  success?: boolean;
+  error?: string;
+}
+
 type Props = {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
@@ -45,22 +50,22 @@ export default function UpsellForm({ formData, setFormData }: Props) {
         body: JSON.stringify(payload),
       });
 
-      // Read raw text first to avoid unexpected end of JSON
       const text = await res.text();
-      let data: any;
+      console.log('❗ Raw response text:', text);
+
+      let data: ApiResponse;
       try {
-        data = JSON.parse(text);
+        data = JSON.parse(text) as ApiResponse;
       } catch {
-        data = {};
+        data = { error: 'Invalid JSON response' };
       }
 
-      if (!res.ok) {
-        const msg = typeof data.error === 'string' ? data.error : text || 'Failed to save rule';
+      if (!res.ok || data.error) {
+        const msg = data.error || 'Failed to save rule';
         throw new Error(msg);
       }
 
       alert('Rule saved successfully!');
-      // Optionally clear form
       setFormData({ triggerProduct: '', upsellProduct: '', message: '', discount: '' });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
