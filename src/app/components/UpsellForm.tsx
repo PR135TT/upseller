@@ -45,12 +45,23 @@ export default function UpsellForm({ formData, setFormData }: Props) {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      // Read raw text first to avoid unexpected end of JSON
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = {};
+      }
+
       if (!res.ok) {
-        const msg = typeof data.error === 'string' ? data.error : 'Failed to save rule';
+        const msg = typeof data.error === 'string' ? data.error : text || 'Failed to save rule';
         throw new Error(msg);
       }
+
       alert('Rule saved successfully!');
+      // Optionally clear form
+      setFormData({ triggerProduct: '', upsellProduct: '', message: '', discount: '' });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
