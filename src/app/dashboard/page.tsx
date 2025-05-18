@@ -43,7 +43,7 @@ function DashboardContent() {
           setSavedRules(json.data!);
         } else {
           console.error('Failed to load rules:', json.error);
-          setSavedRules([]);  // clear on failure or keep previous
+          setSavedRules([]);
         }
       })
       .catch(err => {
@@ -84,16 +84,36 @@ function DashboardContent() {
       <UpsellPreview formData={formData} />
 
       {/* Existing rules list */}
-      <div className="md:col-span-2 bg-black p-4 rounded shadow">
+      <div className="md:col-span-2 bg-white p-4 rounded shadow">
         <h3 className="text-lg font-bold mb-2">Existing Upsell Rules</h3>
         {savedRules.length === 0 ? (
-          <p className="text-sm text-black-500">No rules yet.</p>
+          <p className="text-sm text-gray-500">No rules yet.</p>
         ) : (
-          <ul className="list-disc ml-5 space-y-1">
+          <ul className="list-disc ml-5 space-y-2">
             {savedRules.map(r => (
-              <li key={r.id}>
-                If product <strong>{r.trigger_product_id}</strong> then upsell{' '}
-                <strong>{r.upsell_product_id}</strong> at {r.discount_percent}% off
+              <li key={r.id} className="flex justify-between items-center">
+                <span>
+                  If product <strong>{r.trigger_product_id}</strong> then upsell{' '}
+                  <strong>{r.upsell_product_id}</strong> at {r.discount_percent}% off
+                </span>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Delete this rule?')) return;
+                    const res = await fetch(
+                      `/api/rules?id=${r.id}&shop=${shop}`,
+                      { method: 'DELETE' }
+                    );
+                    const json = await res.json();
+                    if (json.success) {
+                      reloadRules();
+                    } else {
+                      alert('Delete failed: ' + json.error);
+                    }
+                  }}
+                  className="ml-4 text-red-600 hover:underline text-sm"
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
