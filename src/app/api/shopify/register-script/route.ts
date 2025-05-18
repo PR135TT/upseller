@@ -2,35 +2,30 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface ShopRecord { access_token: string; }
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function POST(request: Request) {
-  // 1) Parse shop from request body
   const { shop } = await request.json();
   if (!shop) {
-    return NextResponse.json({ error: 'Missing shop' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Missing shop' }, { status: 400 });
   }
 
-  // 2) Retrieve access token from Supabase
-  const { data: shopRecord, error: fetchError } = await supabase
+  // 1) Fetch the merchant’s token
+  const { data: shopRec, error: dbError } = await supabase
     .from('shops')
     .select('access_token')
     .eq('shop', shop)
     .single();
 
-  if (fetchError || !shopRecord) {
-    return NextResponse.json(
-      { error: 'Could not fetch shop token', details: fetchError?.message },
-      { status: 500 }
-    );
+  if (dbError || !shopRec) {
+    return NextResponse.json({ success: false, error: dbError?.message || 'No shop record' }, { status: 500 });
   }
 
-  const accessToken = shopRecord.access_token;
-
-  // 3) Register the script tag with Shopify
   const scriptTagPayload = {
     script_tag: {
       event: 'onload',
@@ -38,12 +33,13 @@ export async function POST(request: Request) {
     },
   };
 
+  // 2) Call Shopify Admin API to register the tag
   const response = await fetch(
     `https://${shop}/admin/api/2023-10/script_tags.json`,
     {
       method: 'POST',
       headers: {
-        'X-Shopify-Access-Token': accessToken,
+        'X-Shopify-Access-Token': shopRec.access_token,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(scriptTagPayload),
@@ -52,10 +48,7 @@ export async function POST(request: Request) {
 
   if (!response.ok) {
     const details = await response.text();
-    return NextResponse.json(
-      { error: 'Failed to register script tag', details },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: details }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
