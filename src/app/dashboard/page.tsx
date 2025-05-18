@@ -84,7 +84,7 @@ function DashboardContent() {
       <UpsellPreview formData={formData} />
 
       {/* Existing rules list */}
-      <div className="md:col-span-2 bg-white p-4 rounded shadow">
+      <div className="md:col-span-2 bg-black p-4 rounded shadow">
         <h3 className="text-lg font-bold mb-2">Existing Upsell Rules</h3>
         {savedRules.length === 0 ? (
           <p className="text-sm text-black-500">No rules yet.</p>
