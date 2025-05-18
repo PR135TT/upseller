@@ -51,7 +51,7 @@ export default function UpsellPreview({ formData }: PreviewProps) {
 
         {/* Message and Button */}
         <div>
-          <p className="mb-2 text-gray-700 italic">"{message}"</p>
+          <p className="mb-2 text-gray-700 italic">{message}&quot;</p>
           <button
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
           >
