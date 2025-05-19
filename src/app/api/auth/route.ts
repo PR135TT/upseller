@@ -1,4 +1,3 @@
-// src/app/api/auth/callback/route.ts
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
@@ -14,6 +13,7 @@ function generateHmac(params: URLSearchParams, secret: string) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}=${v}`)
     .join('&');
+
   return crypto.createHmac('sha256', secret).update(sorted).digest('hex');
 }
 
@@ -27,13 +27,19 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
-  // 1) Validate HMAC
+  // 🔐 Secure HMAC comparison using timingSafeEqual
   const generated = generateHmac(searchParams, process.env.SHOPIFY_API_SECRET!);
-  if (generated !== hmac) {
+  const hmacBuffer  = Buffer.from(hmac, 'utf-8');
+  const generatedBuffer = Buffer.from(generated, 'utf-8');
+
+  if (
+    hmacBuffer.length !== generatedBuffer.length ||
+    !crypto.timingSafeEqual(hmacBuffer, generatedBuffer)
+  ) {
     return NextResponse.json({ error: 'HMAC validation failed' }, { status: 403 });
   }
 
-  // 2) Exchange code for an access token
+  // 🔄 Exchange code for access token
   const tokenRes = await fetch(`https://${shop}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -45,13 +51,13 @@ export async function GET(request: Request) {
   });
 
   if (!tokenRes.ok) {
-    const details = await tokenRes.text();
+    const details = await tokenRes.text().catch(() => 'Unable to parse error details');
     return NextResponse.json({ error: 'Token exchange failed', details }, { status: 500 });
   }
 
   const { access_token } = await tokenRes.json();
 
-  // 3) Persist the token
+  // 💾 Store token
   const { error: dbError } = await supabase
     .from('shops')
     .upsert({ shop, access_token });
@@ -60,20 +66,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Database upsert failed', details: dbError.message }, { status: 500 });
   }
 
-  // 4) Auto-register the snippet (non-blocking)
+  // 🧩 Auto-register snippet (non-blocking, includes token)
   (async () => {
     try {
       await fetch(`${process.env.SHOPIFY_APP_URL}/api/shopify/register-script`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ shop }),
+        body:    JSON.stringify({ shop, access_token }),
       });
     } catch (err) {
       console.error('Snippet registration failed:', err);
     }
   })();
 
-  // 5) Redirect merchant to dashboard
+  // ✅ Redirect to dashboard with encoded shop param
   const baseUrl = process.env.SHOPIFY_APP_URL!.replace(/\/+$/, '');
-  return NextResponse.redirect(`${baseUrl}/dashboard?shop=${shop}`);
+  return NextResponse.redirect(`${baseUrl}/dashboard?shop=${encodeURIComponent(shop)}`);
 }
