@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upseller – Natural Language Upsells for Shopify</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0b0c10;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 60px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #1f2937, #111827);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #cbd5e1;
+    }
+
+    .waitlist-form {
+      margin-top: 2rem;
+    }
+
+    .waitlist-form input[type="email"] {
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      width: 250px;
+      max-width: 90%;
+      margin-right: 10px;
+    }
+
+    .waitlist-form button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #3b82f6;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .waitlist-form button:hover {
+      background-color: #2563eb;
+    }
+
+    .section {
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .features ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .features li {
+      margin-bottom: 10px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .features li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: #22c55e;
+    }
+
+    .pricing {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .pricing-card {
+      background-color: #1e293b;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      color: #f8fafc;
+      text-align: center;
+    }
+
+    .pricing-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+
+    .pricing-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+
+    .pricing-card ul li {
+      margin-bottom: 8px;
+    }
+
+    .pricing-card .price {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 2rem;
+      }
+
+      .pricing-card {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Upseller: Create Shopify Upsells With Just Your Words</h1>
+  <p>“When someone adds X, offer Y at 30% off.” That’s all it takes.</p>
+
+  <form class="waitlist-form" id="waitlist-form">
+    <input type="email" id="email" placeholder="you@store.com" required />
+    <button type="submit">Join Waitlist</button>
+  </form>
+  <p id="response-msg" style="margin-top: 1rem; color: #10b981;"></p>
+</header>
+
+<section class="section features">
+  <h2>Why Upseller?</h2>
+  <ul>
+    <li>Write upsells like: “If cart contains Product A, offer Product B at 20% off.”</li>
+    <li>No forms, no dropdowns. Just plain English.</li>
+    <li>Instant Shopify integration with automatic script injection.</li>
+    <li>Live dashboard for rule tracking and analytics.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <h2 style="text-align: center;">Pricing Plans</h2>
+  <div class="pricing">
+    <div class="pricing-card">
+      <h3>Free</h3>
+      <ul>
+        <li>1 active upsell rule</li>
+        <li>Basic tracking</li>
+        <li>Natural language input</li>
+      </ul>
+      <div class="price">$0/mo</div>
+    </div>
+    <div class="pricing-card" style="border: 2px solid #3b82f6;">
+      <h3>Pro</h3>
+      <ul>
+        <li>10 active rules</li>
+        <li>Advanced insights</li>
+        <li>Email support</li>
+      </ul>
+      <div class="price">$19/mo</div>
+    </div>
+    <div class="pricing-card">
+      <h3>Unlimited</h3>
+      <ul>
+        <li>Unlimited upsell rules</li>
+        <li>Priority support</li>
+        <li>AI suggestions & automation</li>
+      </ul>
+      <div class="price">$49/mo</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; <span id="year"></span> Upseller. Built for Shopify stores with ❤️
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+
+    if (!email) return;
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        document.getElementById('response-msg').textContent = 'Thanks! You’re on the list.';
+        document.getElementById('email').value = '';
+      } else {
+        document.getElementById('response-msg').textContent = 'Something went wrong.';
+      }
+    } catch (err) {
+      document.getElementById('response-msg').textContent = 'Error connecting to server.';
+    }
+  });
+</script>
+
+</body>
+</html>
