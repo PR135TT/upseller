@@ -42,7 +42,10 @@ Instruction: "${command}"
       throw new Error('Incomplete parsing result');
     }
     return NextResponse.json({ data });
-  } catch (err: any) {
+  } catch (err) {
+  if (err instanceof Error) {
     return NextResponse.json({ error: 'Failed to parse command: ' + err.message }, { status: 400 });
   }
+  return NextResponse.json({ error: 'Unknown error occurred' }, { status: 400 });
+}
 }
