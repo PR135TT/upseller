@@ -21,7 +21,6 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
     e.preventDefault();
     setLoading(true);
     try {
-      // 2. Send the NL command to your parsing endpoint
       const res = await fetch('/api/parse-rule', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,10 +30,10 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
       if (!res.ok || json.error) {
         throw new Error(json.error || 'Parse failed');
       }
-      // 3. Pass structured data back up to parent
       onParsed(json.data);
-    } catch (err: any) {
-      onError?.(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An unknown error occurred';
+      onError?.(message);
     } finally {
       setLoading(false);
     }
