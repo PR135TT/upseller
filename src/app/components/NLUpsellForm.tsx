@@ -61,3 +61,5 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
     </form>
   );
 }
+
+console.log("Rendering NLUpsellForm");
