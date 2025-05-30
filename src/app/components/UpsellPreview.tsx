@@ -30,7 +30,7 @@ export default function UpsellPreview({ formData }: PreviewProps) {
       <div className="flex-1 flex flex-col justify-between">
         {/* Trigger Product */}
         <div className="mb-4">
-          <p className="text-sm text-gray-600">When a customer buys:</p>
+          <p className="text-sm text-black-600">When a customer buys:</p>
           <div className="mt-2 p-4 bg-gray-50 rounded border border-gray-200">
             <p className="font-medium">{triggerProduct}</p>
           </div>
