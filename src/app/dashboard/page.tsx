@@ -5,7 +5,8 @@ import Spinner from '../components/Spinner';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
-import UpsellForm from '../components/UpsellForm';
+// ↓ swap in the NL form:
+import NLUpsellForm from '../components/NLUpsellForm';
 import UpsellPreview from '../components/UpsellPreview';
 
 // Define the shape of a saved rule
@@ -23,14 +24,6 @@ function DashboardContent() {
   const router = useRouter();
   const shop = searchParams.get('shop');
 
-  // form state
-  const [formData, setFormData] = useState({
-    triggerProduct: '',
-    upsellProduct: '',
-    message: '',
-    discount: '',
-  });
-
   // saved rules state & loading
   const [savedRules, setSavedRules] = useState<RuleType[]>([]);
   const [loadingRules, setLoadingRules] = useState(false);
@@ -38,7 +31,7 @@ function DashboardContent() {
   // banner notifications
   const [banner, setBanner] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // 1️⃣ Define a reload function
+  // 1️⃣ Reload function
   const reloadRules = useCallback(() => {
     if (!shop) return;
     setLoadingRules(true);
@@ -63,19 +56,19 @@ function DashboardContent() {
       });
   }, [shop]);
 
-  // 2️⃣ Initial load on mount / shop change
+  // 2️⃣ Initial load
   useEffect(() => {
     reloadRules();
   }, [reloadRules]);
 
-  // 3️⃣ Banner auto-dismiss after 3s
+  // 3️⃣ Auto-dismiss banner
   useEffect(() => {
     if (!banner) return;
     const id = setTimeout(() => setBanner(null), 3000);
     return () => clearTimeout(id);
   }, [banner]);
 
-  // If no shop in URL, show the install button
+  // If no shop, show install button
   if (!shop) {
     const defaultShop = 'your-dev-store.myshopify.com';
     return (
@@ -92,13 +85,11 @@ function DashboardContent() {
 
   return (
     <div className="relative p-6 min-h-screen bg-gray-50">
-      {/* Banner Notifications */}
+      {/* Banner */}
       {banner && (
         <div
           className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-md ${
-            banner.type === 'success'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
+            banner.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
           }`}
         >
           {banner.message}
@@ -106,25 +97,42 @@ function DashboardContent() {
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Form Card */}
+        {/* 1️⃣ Natural-language form */}
         <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
-          <UpsellForm
-            formData={formData}
-            setFormData={setFormData}
-            onSave={() => {
-              reloadRules();
-              setBanner({ type: 'success', message: 'Upsell rule saved!' });
+          <NLUpsellForm
+            onParsed={(parsed) => {
+              fetch('/api/rules', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(parsed),
+              })
+                .then(r => r.json())
+                .then(json => {
+                  if (json.success) {
+                    setBanner({ type: 'success', message: 'Upsell rule created!' });
+                    reloadRules();
+                  } else {
+                    setBanner({ type: 'error', message: json.error });
+                  }
+                });
             }}
             onError={(msg) => setBanner({ type: 'error', message: msg })}
           />
         </div>
 
-        {/* Preview Card */}
+        {/* 2️⃣ Preview (you may adapt to show parsed values if desired) */}
         <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
-          <UpsellPreview formData={formData} />
+          <UpsellPreview
+            formData={{
+              triggerProduct: '',
+              upsellProduct: '',
+              message: '',
+              discount: '',
+            }}
+          />
         </div>
 
-        {/* Existing rules list */}
+        {/* 3️⃣ Existing rules */}
         <div className="md:col-span-2 bg-white p-6 rounded-lg shadow-md border border-gray-200">
           <h3 className="text-xl font-bold mb-4">Existing Upsell Rules</h3>
 
@@ -148,8 +156,8 @@ function DashboardContent() {
                       });
                       const json = await res.json();
                       if (json.success) {
-                        reloadRules();
                         setBanner({ type: 'success', message: 'Upsell rule deleted.' });
+                        reloadRules();
                       } else {
                         setBanner({ type: 'error', message: 'Delete failed: ' + json.error });
                       }
