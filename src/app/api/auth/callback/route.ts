@@ -29,6 +29,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
+  console.log(Object.fromEntries(searchParams.entries()));
+
   // 1) Validate the HMAC signature
   const generatedHmac = generateHmac(searchParams, process.env.SHOPIFY_API_SECRET!);
   if (generatedHmac !== hmac) {
