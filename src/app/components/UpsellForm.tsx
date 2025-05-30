@@ -92,7 +92,7 @@ export default function UpsellForm({ formData, setFormData, onSave, onError }: P
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+    <div className="bg-grey p-6 rounded-lg shadow-md border border-gray-200">
       <h2 className="text-xl font-bold mb-4 text-black-800">Create Upsell Offer</h2>
       <form
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
