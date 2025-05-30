@@ -1,4 +1,5 @@
 // src/components/NLUpsellForm.tsx
+console.log("Rendering NLUpsellForm");
 'use client';
 
 import { useState } from 'react';
@@ -62,4 +63,4 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
   );
 }
 
-console.log("Rendering NLUpsellForm");
+
