@@ -75,7 +75,7 @@ function DashboardContent() {
       <div className="flex items-center justify-center min-h-screen bg-green-50">
         <button
           onClick={() => router.push(`/api/auth?shop=${defaultShop}`)}
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+          className="bg-green-600 text-black px-6 py-3 rounded-lg hover:bg-green-700"
         >
           Install on Shopify
         </button>
