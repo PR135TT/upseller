@@ -1,6 +1,7 @@
 // src/components/NLUpsellForm.tsx
-console.log("Rendering NLUpsellForm");
 'use client';
+console.log("Rendering NLUpsellForm");
+
 
 import { useState } from 'react';
 
