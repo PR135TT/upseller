@@ -93,13 +93,13 @@ export default function UpsellForm({ formData, setFormData, onSave, onError }: P
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Create Upsell Offer</h2>
+      <h2 className="text-xl font-bold mb-4 text-black-800">Create Upsell Offer</h2>
       <form
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
         onSubmit={e => { e.preventDefault(); handleSave(); }}
       >
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Trigger Product</label>
+          <label className="block text-sm font-medium black-gray-700 mb-1">Trigger Product</label>
           <input
             name="triggerProduct"
             value={formData.triggerProduct}
@@ -108,7 +108,7 @@ export default function UpsellForm({ formData, setFormData, onSave, onError }: P
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Upsell Product</label>
+          <label className="block text-sm font-medium text-black-700 mb-1">Upsell Product</label>
           <input
             name="upsellProduct"
             value={formData.upsellProduct}
@@ -117,7 +117,7 @@ export default function UpsellForm({ formData, setFormData, onSave, onError }: P
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+          <label className="block text-sm font-medium text-black-700 mb-1">Message</label>
           <input
             name="message"
             value={formData.message}
@@ -126,7 +126,7 @@ export default function UpsellForm({ formData, setFormData, onSave, onError }: P
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Discount (%)</label>
+          <label className="block text-sm font-medium text-black-700 mb-1">Discount (%)</label>
           <input
             name="discount"
             type="number"
