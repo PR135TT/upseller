@@ -38,7 +38,7 @@ export default function UpsellPreview({ formData }: PreviewProps) {
 
         {/* Upsell Card */}
         <div className="mb-4">
-          <p className="text-sm text-gray-600">Offer this upsell:</p>
+          <p className="text-sm text-black-600">Offer this upsell:</p>
           <div className="mt-2 p-4 bg-gray-50 rounded border border-gray-200 flex items-center space-x-4">
             {/* Placeholder image */}
             <div className="w-16 h-16 bg-gray-200 rounded"></div>
@@ -53,7 +53,7 @@ export default function UpsellPreview({ formData }: PreviewProps) {
         <div>
           <p className="mb-2 text-gray-700 italic">{message}&quot;</p>
           <button
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-600 text-black py-2 rounded-md hover:bg-indigo-700 transition"
           >
             Add Upsell to Cart
           </button>
