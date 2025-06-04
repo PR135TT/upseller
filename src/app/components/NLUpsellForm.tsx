@@ -51,7 +51,7 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
         onChange={e => setCommand(e.target.value)}
         placeholder="e.g. Create an upsell for product 12345 at 20% off when product 67890 is added to cart"
         rows={4}
-        className="w-full p-2 border rounded mb-4 focus:ring-indigo-500 focus:border-indigo-500"
+        className="w-full p-2 border rounded mb-4 focus:ring-indigo-500 focus:border-indigo-500 text-black"
       />
       <button
         type="submit"
