@@ -43,7 +43,7 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
-      <label className="block mb-2 font-medium text-gray-700">
+      <label className="block mb-2 font-medium text-black-700">
         Describe your upsell in plain English
       </label>
       <textarea
@@ -56,7 +56,7 @@ export default function NLUpsellForm({ onParsed, onError }: Props) {
       <button
         type="submit"
         disabled={loading || !command.trim()}
-        className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
+        className="bg-indigo-600 text-black px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
       >
         {loading ? 'Parsing…' : 'Parse & Create Upsell'}
       </button>
